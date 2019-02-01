@@ -23,11 +23,23 @@ define('group_discount', array(
     10 => 55.80,
 ));
 
+/*
+ * This should be an M1 product export file. We parse the file and create an array of the data in order to extract it more easily.
+ */
 $filename = 'latest_product_export_modified.csv';
 $file = fopen($filename, 'r');
 $data = csvFileToArray($file);
-$advanced_pricing_csv_file = fopen('advanced_pricing_import.csv', 'w');
+
+/*
+ * We create or update a csv file and add the header columns needed to correctly import advanced pricing in Magento 2.
+ */
+$new_csv_file = 'advanced_pricing_import.csv';
+$advanced_pricing_csv_file = fopen($new_csv_file, 'w'); // Create/update new file for import.
 addHeaders($advanced_pricing_csv_file); // We add the Magento 2 header values to the first row of the csv file needed to correctly import advanced product pricing.
+
+/*
+ * We have to iterate through the M1 product csv file and extract the necessary data to populate the new csv file used to import advanced pricing.
+ */
 foreach ($data as $product)
 {
     if(!empty($product['cws_tier_price'])) // Check if product contains Tier Pricing.
