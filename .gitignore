@@ -1,2 +1,4 @@
 *.csv
+!latest_product_export_modified.csv
+!test_image_parsing.csv
 *.idea
