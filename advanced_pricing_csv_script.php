@@ -23,71 +23,24 @@ define('group_discount', array(
     10 => 55.80,
 ));
 
-//$file = 'all_product_data.csv';
-$file = fopen('Book1.csv', 'r');
-$data = array();
-$header = fgetcsv($file);
-while ($row = fgetcsv($file))
-{
-    $data[] = array_combine($header, $row);
-}
-
+$filename = 'latest_product_export_modified.csv';
+$file = fopen($filename, 'r');
+$data = csvFileToArray($file);
 $advanced_pricing_csv_file = fopen('advanced_pricing_import.csv', 'w');
-addHeaders($advanced_pricing_csv_file);
-
+addHeaders($advanced_pricing_csv_file); // We add the Magento 2 header values to the first row of the csv file needed to correctly import advanced product pricing.
 foreach ($data as $product)
 {
-    if(!empty($product['cws_tier_price']))
+    if(!empty($product['cws_tier_price'])) // Check if product contains Tier Pricing.
     {
         processTierPricing($product, $advanced_pricing_csv_file);
     }
-    if(!empty($product['cws_group_price']))
+    if(!empty($product['cws_group_price'])) // Check if product contains Group Pricing.
     {
         processDiscountPricing($product, $advanced_pricing_csv_file);
     }
-
 }
 
-function processDiscountPricing($product, $file)
-{
-    $sku = $product['sku'];
-    $cws_group_price = $product['cws_group_price'];
-    $groups = explode(',', $cws_group_price);
-    foreach($groups as $group)
-    {
-        $insert_data = array($sku, 'All Websites [USD]');
-        $group_data = explode('=', $group);
-        $group_id = $group_data[0];
-        $group_qty = 1;
-        $insert_data[] = group_id_names[$group_id];
-        $insert_data[] = $group_qty;
-        $insert_data[] = group_discount[$group_id];
-        $insert_data[] = 'Discount';
-        fputcsv($file, $insert_data);
-        unset($insert_data);
-    }
-}
-
-function processTierPricing($product, $file)
-{
-    $sku = $product['sku'];
-    $cws_group_price = $product['cws_tier_price'];
-    $groups = explode('|', $cws_group_price);
-    foreach($groups as $group)
-    {
-        $insert_data = array($sku, 'All Websites [USD]');
-        $group_data = explode('=', $group);
-        $group_id = $group_data[0];
-        $group_qty = $group_data[1];
-        $group_price = $group_data[2];
-        $insert_data[] = group_id_names[$group_id];
-        $insert_data[] = $group_qty;
-        $insert_data[] = $group_price;
-        $insert_data[] = 'Fixed';
-        fputcsv($file, $insert_data);
-        unset($insert_data);
-    }
-}
+echo "<h1>Complete!</h1>";
 
 
 
