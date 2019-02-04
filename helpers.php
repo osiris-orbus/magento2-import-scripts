@@ -5,10 +5,18 @@ function print_f($arr)
     echo "<pre>" . print_r($arr, true) . "</pre>";
 }
 
-function addHeaders($file)
+/*
+ * First row of csv file (header values) needs to contain the following values in order to import correctly to M2.
+ */
+function addHeaders($file, $import_type)
 {
-    $headers = array('sku', 'tier_price_website', 'tier_price_customer_group', 'tier_price_qty', 'tier_price', 'tier_price_value_type');
-    fputcsv($file, $headers);
+    if ($import_type == 'pricing')
+        $headers = array('sku', 'tier_price_website', 'tier_price_customer_group', 'tier_price_qty', 'tier_price', 'tier_price_value_type');
+    elseif ($import_type == 'images')
+        $headers = array('sku', 'base_image', 'base_image_label', 'small_image', 'small_image_label', 'thumbnail_image', 'thumbnail_image_label', 'additional_images');
+    else
+        return '$import_type not correct';
+    return fputcsv($file, $headers);
 }
 
 function csvFileToArray($file)
@@ -62,3 +70,5 @@ function processTierPricing($product, $file)
         unset($insert_data);
     }
 }
+
+
