@@ -1,5 +1,5 @@
 <?php
-require("helpers.php");
+require_once("helpers.php");
 
 define('group_id_names', array(
     0 => 'NOT LOGGED IN',
@@ -26,14 +26,15 @@ define('group_discount', array(
 /*
  * This should be an M1 product export file. We parse the file and create an array of the data in order to extract it more easily.
  */
-$filename = 'latest_product_export_modified.csv';
+//$filename = 'latest_product_export_modified.csv';
+$filename = './csv_file/ocb-2.csv';
 $file = fopen($filename, 'r');
 $data = csvFileToArray($file);
 
 /*
  * We create or update a csv file and add the header columns needed to correctly import advanced pricing in Magento 2.
  */
-$new_csv_file = 'advanced_pricing_import.csv';
+$new_csv_file = 'advanced_pricing_import_ocb.csv';
 $advanced_pricing_csv_file = fopen($new_csv_file, 'w'); // Create/update new file for import.
 addHeaders($advanced_pricing_csv_file, 'pricing'); // We add the Magento 2 header values to the first row of the csv file needed to correctly import advanced product pricing.
 

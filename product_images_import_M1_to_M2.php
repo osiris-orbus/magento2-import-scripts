@@ -1,6 +1,6 @@
 <?php
-require("helpers.php");
-$file_name = 'products_image_only.csv';
+require_once("helpers.php");
+$file_name = './csv_file/products_image_only.csv';
 //$file_name = 'copy_product_images.csv';
 //$file_name = 'test_image_parsing.csv';
 $file = fopen($file_name, 'r');
@@ -33,33 +33,39 @@ for($n = 0; $n < count($data); $n++)
                 continue;
             }
         }
+        if($product['sku'] == 'OCB-2')
+        {
+            unset($product);
+            break;
+        }
         $i++;
     }
-    unset($product);
 }
-print_f($product_data);
-exit;
+fclose($file);
+unset($data);
+//print_f($product_data);
+//exit;
 
+$new_csv_file = 'image_associations_ocb.csv';
+$image_associations_csv = fopen($new_csv_file, 'w');
+addHeaders($image_associations_csv, 'images');
 
-
-//print_f($product_data);exit;
-//$new_csv_file = 'image_associations.csv';
-//$image_associations_csv = fopen($new_csv_file, 'w');
-//addHeaders($image_associations_csv, 'images');
-//
-//foreach($product_data as $product)
-//{
-//    $row_data = array(
-//        'sku' => $product['sku'],
-//        'base_image' => $product['image'],
-//        'base_image_label' => $product['image'],
-//        'small_image' => $product['image'],
-//        'small_image_label' => $product['image'],
-//        'thumbnail_image' => $product['image'],
-//        'thumbnail_image_label' => $product['image'],
-//        'additional_images' => implode(',', $product['other_images'])
-//    );
-//    fputcsv($image_associations_csv, $row_data);
+foreach($product_data as $product)
+{
+    if($product['sku'] == 'OCB-2')
+    {
+        $row_data = array(
+            'sku' => $product['sku'],
+            'base_image' => $product['image'],
+            'base_image_label' => $product['image'],
+            'small_image' => $product['image'],
+            'small_image_label' => $product['image'],
+            'thumbnail_image' => $product['image'],
+            'thumbnail_image_label' => $product['image'],
+            'additional_images' => implode(',', $product['other_images'])
+        );
+        fputcsv($image_associations_csv, $row_data);
+    }
 //    print_f($row_data);exit;
-//}
+}
 
