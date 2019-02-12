@@ -14,17 +14,6 @@ if(isset($_POST['skus']))
         10 => 'Tier 5'
     ));
 
-    define('group_discount', array(
-        0 => 0,
-        4 => 0,
-        5 => 0,
-        6 => 60.00,
-        7 => 58.00,
-        8 => 55.80,
-        9 => 55.80,
-        10 => 55.80,
-    ));
-
     /*
      * This should be an M1 product export file. We parse the file and create an array of the data in order to extract it more easily.
      */
@@ -49,11 +38,11 @@ if(isset($_POST['skus']))
         {
             if(!empty($product['cws_tier_price'])) // Check if product contains Tier Pricing.
             {
-                processTierPricing($product, $advanced_pricing_csv_file);
+                processPricing($product, $advanced_pricing_csv_file, 'tier');
             }
             if(!empty($product['cws_group_price'])) // Check if product contains Group Pricing.
             {
-                processDiscountPricing($product, $advanced_pricing_csv_file);
+                processPricing($product, $advanced_pricing_csv_file, 'group');
             }
         }
     }

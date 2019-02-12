@@ -1,11 +1,10 @@
 <?php
 require_once("helpers.php");
-if(isset($_POST['skus']))
+if(isset($_POST['skus']) || isset($_POST['all_skus']))
 {
+    $all_skus = $_POST['all_skus'];
     $skus = strpos($_POST['skus'], '^^ ') !== false ? explode(' ', $_POST['skus']) : array($_POST['skus']);
     $file_name = './csv_files/products_image_only.csv';
-//$file_name = 'copy_product_images.csv';
-//$file_name = 'test_image_parsing.csv';
     $file = fopen($file_name, 'r');
     $data = csvFileToArray($file);
     $product_data = array();
@@ -46,31 +45,52 @@ if(isset($_POST['skus']))
     $image_associations_csv = fopen($new_csv_file, 'w');
     addHeaders($image_associations_csv, 'images');
 
-    foreach($product_data as $product)
+    if($all_skus)
     {
-        if(in_array($product['sku'], $skus))
+        foreach($product_data as $product)
         {
             $row_data = array(
-                'sku' => $product['sku'],
-                'base_image' => $product['image'],
-                'base_image_label' => $product['image'],
-                'small_image' => $product['image'],
-                'small_image_label' => $product['image'],
-                'thumbnail_image' => $product['image'],
+                'sku'                   => $product['sku'],
+                'base_image'            => $product['image'],
+                'base_image_label'      => $product['image'],
+                'small_image'           => $product['image'],
+                'small_image_label'     => $product['image'],
+                'thumbnail_image'       => $product['image'],
                 'thumbnail_image_label' => $product['image'],
-                'additional_images' => implode(',', $product['other_images'])
+                'additional_images'     => implode(',', $product['other_images'])
             );
             fputcsv($image_associations_csv, $row_data);
         }
     }
+    else
+    {
+        foreach($product_data as $product)
+        {
+            if(in_array($product['sku'], $skus))
+            {
+                $row_data = array(
+                    'sku'                   => $product['sku'],
+                    'base_image'            => $product['image'],
+                    'base_image_label'      => $product['image'],
+                    'small_image'           => $product['image'],
+                    'small_image_label'     => $product['image'],
+                    'thumbnail_image'       => $product['image'],
+                    'thumbnail_image_label' => $product['image'],
+                    'additional_images'     => implode(',', $product['other_images'])
+                );
+                fputcsv($image_associations_csv, $row_data);
+            }
+        }
+    }
     echo "<h1>File $new_csv_file has been created!</h1>";
 }
-?>
 
+?>
 
 <form method="post" action="#">
     <h3>Please enter a SKU or multiple SKU's to generate images csv file for Magento 2 import.</h3>
     <h3>For multiple skus, separate by a space.</h3>
     <input type="text" placeholder="SKU(s)" name="skus" style="width: 800px;"><br/><br/>
+    <input type="checkbox" name="all_skus">All SKU's<br/><br/>
     <button type="submit">Process</button>
 </form>

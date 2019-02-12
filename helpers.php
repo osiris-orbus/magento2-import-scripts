@@ -14,6 +14,8 @@ function addHeaders($file, $import_type)
         $headers = array('sku', 'tier_price_website', 'tier_price_customer_group', 'tier_price_qty', 'tier_price', 'tier_price_value_type');
     elseif ($import_type == 'images')
         $headers = array('sku', 'base_image', 'base_image_label', 'small_image', 'small_image_label', 'thumbnail_image', 'thumbnail_image_label', 'additional_images');
+    elseif($import_type == 'images_generate')
+        $headers = array('sku', 'base_image', 'base_image_label', 'small_image', 'small_image_label', 'thumbnail_image', 'thumbnail_image_label', 'additional_images');
     else
         return '$import_type not correct';
     return fputcsv($file, $headers);
@@ -30,45 +32,23 @@ function csvFileToArray($file)
     return $data;
 }
 
-function processDiscountPricing($product, $file)
+function processPricing($product, $file, $price_type)
 {
     $sku = $product['sku'];
-    $cws_group_price = $product['cws_group_price'];
-    $groups = explode(',', $cws_group_price);
-    foreach($groups as $group)
+    $cws_price = $price_type == 'tier' ? $product['cws_tier_price'] : $product['cws_group_price'];
+    $prices =  $price_type == 'tier' ? explode('|', $cws_price) : explode(',', $cws_price);
+    foreach($prices as $price)
     {
         $insert_data = array($sku, 'All Websites [USD]');
-        $group_data = explode('=', $group);
-        $group_id = $group_data[0];
-        $group_qty = 1;
-        $insert_data[] = group_id_names[$group_id];
-        $insert_data[] = $group_qty;
-        $insert_data[] = group_discount[$group_id];
-        $insert_data[] = 'Discount';
-        fputcsv($file, $insert_data);
-        unset($insert_data);
-    }
-}
-
-function processTierPricing($product, $file)
-{
-    $sku = $product['sku'];
-    $cws_group_price = $product['cws_tier_price'];
-    $groups = explode('|', $cws_group_price);
-    foreach($groups as $group)
-    {
-        $insert_data = array($sku, 'All Websites [USD]');
-        $group_data = explode('=', $group);
-        $group_id = $group_data[0];
-        $group_qty = $group_data[1];
-        $group_price = $group_data[2];
-        $insert_data[] = group_id_names[$group_id];
-        $insert_data[] = $group_qty;
-        $insert_data[] = $group_price;
+        $price_data = explode('=', $price);
+        $customer_group_id = $price_data[0];
+        $customer_group_qty = $price_type == 'tier' ? $price_data[1] : 1;
+        $customer_group_price = $price_type == 'tier' ? $price_data[2] : $price_data[1];
+        $insert_data[] = group_id_names[$customer_group_id];
+        $insert_data[] = $customer_group_qty;
+        $insert_data[] = $customer_group_price;
         $insert_data[] = 'Fixed';
         fputcsv($file, $insert_data);
         unset($insert_data);
     }
 }
-
-
