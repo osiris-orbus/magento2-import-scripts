@@ -1,10 +1,10 @@
 <?php
 require("helpers.php");
-$filename = './csv_files/related_skus_only.csv'; // csv file should only contain the columns 'sku' and 'related_product_sku'.
+$filename = './csv_files/generate_positions.csv'; // csv file should only contain the columns 'sku' and 'related_product_sku'.
 $file = fopen($filename, 'r');
 $data = csvFileToArray($file);
 
-$new_filename = './csv_files/related_skus.csv';
+$new_filename = './csv_files/Generate Related Positions/related_skus.csv';
 $new_file = fopen($new_filename, 'w');
 fputcsv($new_file, array('sku', 'related_product_sku', 'related_position'));
 

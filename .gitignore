@@ -3,3 +3,4 @@
 !./csv_files/latest_product_export_modified.csv
 !./csv_files/test_image_parsing.csv
 *.idea
+images.php

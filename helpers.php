@@ -52,3 +52,26 @@ function processPricing($product, $file, $price_type)
         unset($insert_data);
     }
 }
+
+function renameColumns($file, &$new_file)
+{
+    $replace = array(
+        'attribute_set' => 'attribute_set_code',
+        'product_type_id' => 'product_type',
+        'tax_class_id' => 'tax_class_name',
+        'bundle_product_options' => 'bundle_values',
+        'status' => 'product_online',
+        'image' => 'base_image'
+    );
+    $headers = fgetcsv($file);
+    $i = 0;
+    foreach($headers as $header)
+    {
+        if(isset($replace[$header]))
+        {
+            $headers[$i] = $replace[$header];
+        }
+        $i++;
+    }
+    fputcsv($new_file, $headers);
+}
