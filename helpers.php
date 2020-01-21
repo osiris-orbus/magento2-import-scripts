@@ -21,10 +21,14 @@ function addHeaders($file, $import_type)
     return fputcsv($file, $headers);
 }
 
-function csvFileToArray($file)
+function csvFileToArray($file, $headers = null)
 {
     $data = array();
-    $header = fgetcsv($file);
+    if($headers != null)
+        $header = $headers;
+    else
+        $header = fgetcsv($file);
+
     while ($row = fgetcsv($file))
     {
         $data[] = array_combine($header, $row);
