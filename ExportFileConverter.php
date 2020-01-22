@@ -65,35 +65,121 @@ class ExportFileConverter
         $data = csvFileToArray($file, $headers);
         $attribute_set = '';
         $new_attribute_set_file = null;
+        $attr_set_array = array();
+
         $i = 0;
-        $file_directory = './csv_files/automated_files/'.time();
         foreach($data as $product)
         {
             if($product['product_online'] == 'Disabled') // If product is disabled, skip.
                 continue;
             if($attribute_set != $product['attribute_set_code']) // If we encounter a new attribute set.
             {
-                $this->unsetHeaderAndProductValues($product, $headers);
                 $attribute_set = $product['attribute_set_code'];
-                mkdir($file_directory, 0777);
-                $new_file_name = $file_directory.'/'.str_replace('/','-', $attribute_set).'.csv';
-                $new_attribute_set_file = fopen($new_file_name, 'w+');
-                fputcsv($new_attribute_set_file, $headers);
-                $i++;
+                $attr_set_array[$attribute_set] = array();
+
+
+//                $this->updateHeaderValuess($data, $headers);
+//                $this->unsetHeaderAndProductValues($product, $headers);
+
+//                mkdir($file_directory, 0777);
+//                $new_file_name = $file_directory.'/'.str_replace('/','-', $attribute_set).'.csv';
+//                $new_attribute_set_file = fopen($new_file_name, 'w+');
+//                fputcsv($new_attribute_set_file, $headers);
             }
-            fputcsv($new_attribute_set_file, array_values($product));
+//            $i++;
+//            if($i == 250)
+//            {
+//                break;
+//            }
+            $attr_set_array[$attribute_set][] = $product;
+//            fputcsv($new_attribute_set_file, array_values($product));
         }
+
+        $this->updateHeaderValuess($attr_set_array, $headers);
+        print_f($attr_set_array);exit;
     }
 
+
+    public function updateHeaderValuess($attr_set_data, &$headers)
+    {
+        $file_directory = './csv_files/automated_files/'.time();
+        mkdir($file_directory, 0777);
+        foreach($attr_set_data as $attr_set_name => $product_rows)
+        {
+            $new_file_name = $file_directory.'/'.str_replace('/','-', $attr_set_name).'.csv';
+            $new_attribute_set_file = fopen($new_file_name, 'w+');
+            $new_headers_set = false;
+            $headers_to_remove = '';
+            foreach($product_rows as $index => $product)
+            {
+                if(empty($headers_to_remove))
+                {
+                    $headers_to_remove = $this->getHeadersToRemove($product, $product_rows, $attr_set_name, $index);
+                }
+                foreach($headers_to_remove as $header_to_remove)
+                {
+                    unset($product[$header_to_remove]);
+                }
+                if($new_headers_set == false)
+                {
+                    $new_headers = array_keys($product);
+                    $new_headers_set = true;
+                    fputcsv($new_attribute_set_file, $new_headers);
+                }
+                fputcsv($new_attribute_set_file, array_values($product));
+            }
+            unset($headers_to_remove);
+        }
+        echo "DONE";exit;
+    }
+
+    public function getHeadersToRemove($product, $product_rows, $attr_set_name, $index)
+    {
+        $arr = array();
+        foreach($product as $header => $value)
+        {
+            $keep_header = false;
+            if($value == '')
+            {
+                for($i = $index+1; $i < count($product_rows) - $index; $i++)
+                {
+                    if($product_rows[$i][$header] != '')
+                    {
+                        $keep_header = true;
+                        continue 2;
+                    }
+                }
+            }
+            else
+            {
+                $keep_header = true;
+                continue;
+            }
+            if($keep_header == false)
+            {
+                $arr[] = $header;
+            }
+        }
+        return $arr;
+    }
+
+    /**
+     * @param array $product Product row in csv file
+     * @param array $headers Attribute names
+     * DEPRECATED
+     * Removes all attributes that start with 'orb_' from csv file as well as the first row's values under those attributes. All other rows are left unchanged. (Not sure what the logic was behind this functionality. Was probably left incomplete)
+     */
     public function unsetHeaderAndProductValues(&$product, &$headers)
     {
-        foreach(array_values($headers) as $key => $value)
+        $temp_headers = $headers;
+        $headers_unset = false;
+        foreach(array_values($temp_headers) as $key => $value)
         {
             if(strpos($value, 'orb_') !== false)
             {
-                $key_name = $headers[$key];
-                unset($product[$key_name]);
+                unset($product[$value]);
                 unset($headers[$key]);
+                $headers_unset = true;
             }
         }
     }
