@@ -66,8 +66,6 @@ class ExportFileConverter
         $attribute_set = '';
         $new_attribute_set_file = null;
         $attr_set_array = array();
-
-        $i = 0;
         foreach($data as $product)
         {
             if($product['product_online'] == 'Disabled') // If product is disabled, skip.
@@ -76,27 +74,10 @@ class ExportFileConverter
             {
                 $attribute_set = $product['attribute_set_code'];
                 $attr_set_array[$attribute_set] = array();
-
-
-//                $this->updateHeaderValuess($data, $headers);
-//                $this->unsetHeaderAndProductValues($product, $headers);
-
-//                mkdir($file_directory, 0777);
-//                $new_file_name = $file_directory.'/'.str_replace('/','-', $attribute_set).'.csv';
-//                $new_attribute_set_file = fopen($new_file_name, 'w+');
-//                fputcsv($new_attribute_set_file, $headers);
             }
-//            $i++;
-//            if($i == 250)
-//            {
-//                break;
-//            }
             $attr_set_array[$attribute_set][] = $product;
-//            fputcsv($new_attribute_set_file, array_values($product));
         }
-
         $this->updateHeaderValuess($attr_set_array, $headers);
-        print_f($attr_set_array);exit;
     }
 
 
@@ -130,7 +111,7 @@ class ExportFileConverter
             }
             unset($headers_to_remove);
         }
-        echo "DONE";exit;
+        echo "DONE";
     }
 
     public function getHeadersToRemove($product, $product_rows, $attr_set_name, $index)
@@ -212,4 +193,19 @@ class ExportFileConverter
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
